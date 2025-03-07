@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
@@ -13,13 +12,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login").permitAll() // Cho phép truy cập trang chính mà không cần đăng nhập
-                        .anyRequest().authenticated() // Các request khác cần đăng nhập
+                        .requestMatchers("/", "/login", "/oauth2/**").permitAll() // Cho phép các request này
+                        .anyRequest().authenticated() // Cần xác thực cho tất cả các request khác
                 )
-                .oauth2Login(withDefaults()); // Sử dụng cấu hình mặc định OAuth2
+                .oauth2Login(oauth2 -> oauth2 // Cấu hình OAuth2 Login mới
+                        .loginPage("/oauth2/authorization/google") // Điều hướng đến Google OAuth2
+                )
+                .logout(logout -> logout.logoutSuccessUrl("/").permitAll()); // Xử lý logout
 
         return http.build();
     }
 }
-
 
