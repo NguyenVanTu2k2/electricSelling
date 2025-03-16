@@ -1,16 +1,20 @@
 package selling.electronic_devices.utils;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import selling.electronic_devices.model.User;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtils {
-    private final String SECRET_KEY = "my-secret-key";
+    private final String SECRET_KEY = "my-secret-key-my-secret-key"; // Cần ít nhất 32 ký tự
     private final long EXPIRATION_TIME = 86400000; // 1 ngày
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
 
     public String generateToken(User user) {
         return Jwts.builder()
@@ -18,13 +22,14 @@ public class JwtUtils {
                 .claim("name", user.getFullName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public Claims parseToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
