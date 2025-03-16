@@ -31,7 +31,7 @@ public class UserController {
 
             return Map.of(
                     "id", user.getId(),
-                    "name", user.getName(),
+                    "name", user.getFullName(),
                     "email", user.getEmail(),
                     "picture", user.getPicture()
             );

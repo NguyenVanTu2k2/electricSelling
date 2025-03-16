@@ -1,5 +1,6 @@
 package selling.electronic_devices.model;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,15 +8,15 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    private String fullName;
     private String email;
-
-    private String name;
     private String picture;
+    private String jwtToken; // Lưu token JWT
 }
+
+

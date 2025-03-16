@@ -21,7 +21,7 @@ public class UserService {
         return userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = new User();
             newUser.setEmail(email);
-            newUser.setName(name);
+            newUser.setFullName(name);
             newUser.setPicture(picture);
             return userRepository.save(newUser);
         });
