@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    private final String SECRET_KEY = "my-secret-key-my-secret-key"; // Cần ít nhất 32 ký tự
+    private final String SECRET_KEY = "your-strong-secret-key-with-32-characters"; // Cần ít nhất 32 ký tự
     private final long EXPIRATION_TIME = 86400000; // 1 ngày
 
     private Key getSigningKey() {

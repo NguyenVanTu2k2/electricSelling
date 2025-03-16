@@ -16,6 +16,8 @@ public class User {
     private String fullName;
     private String email;
     private String picture;
+
+    @Column(length = 512)
     private String jwtToken; // Lưu token JWT
 }
 

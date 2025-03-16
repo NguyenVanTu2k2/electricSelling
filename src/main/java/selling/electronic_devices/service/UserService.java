@@ -26,4 +26,11 @@ public class UserService {
             return userRepository.save(newUser);
         });
     }
+    public void saveJwtToken(String email, String token) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setJwtToken(token); // Cập nhật token
+        userRepository.save(user); // Lưu lại vào DB
+    }
 }
