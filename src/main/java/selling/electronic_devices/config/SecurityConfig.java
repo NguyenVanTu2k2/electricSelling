@@ -1,5 +1,6 @@
 package selling.electronic_devices.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,8 +29,16 @@ public class SecurityConfig {
                         )
                         .successHandler(new OAuth2LoginSuccessHandler(userRepository, jwtUtils)) // Xử lý sau khi đăng nhập thành công
                 )
+
+                // logout chạy không được
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/").permitAll()
+                        .logoutUrl("/api/auth/logout") // URL logout
+                        .invalidateHttpSession(true)   // Hủy session
+                        .deleteCookies("JSESSIONID")   // Xóa cookie nếu có
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        })
+
                 );
 
         return http.build();

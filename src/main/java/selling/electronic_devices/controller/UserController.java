@@ -1,47 +1,40 @@
 package selling.electronic_devices.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import selling.electronic_devices.model.User;
-import selling.electronic_devices.service.UserService;
+import selling.electronic_devices.repository.UserRepository;
+import selling.electronic_devices.utils.JwtUtils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
+    private final UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private final JwtUtils jwtUtils;
 
-    @GetMapping("/info")
-    public Map<String, Object> getUserInfo(@AuthenticationPrincipal OidcUser oidcUser) {
-        if (oidcUser != null) {
-            User user = userService.saveUserIfNotExist(
-                    oidcUser.getEmail(),
-                    oidcUser.getFullName(),
-                    oidcUser.getPicture()
-            );
-
-            return Map.of(
-                    "id", user.getId(),
-                    "name", user.getFullName(),
-                    "email", user.getEmail(),
-                    "picture", user.getPicture()
-            );
-        }
-        return Map.of("error", "User not authenticated");
+    public UserController(UserRepository userRepository, JwtUtils jwtUtils) {
+        this.userRepository = userRepository;
+        this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+        String jwt = token.replace("Bearer ", ""); // Lấy token từ header
+        String email = jwtUtils.extractUsername(jwt); // Giải mã token để lấy email
+
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        return ResponseEntity.ok(user.get());
     }
 }
